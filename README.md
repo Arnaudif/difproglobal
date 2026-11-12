@@ -19,3 +19,8 @@ Connectez-vous une fois avec Pi, puis dans Supabase > SQL Editor : `update profi
 
 ## Local
 `npm install` puis `npx netlify dev` (fichier `.env` copié depuis `.env.example`).
+
+## Déploiement sur Render (gratuit)
+Le fichier `render.yaml` décrit le service. Le serveur `server/index.ts` sert le site et l'API sous `/api/*`.
+Variables à saisir dans Render : `SUPABASE_SERVICE_ROLE_KEY`, `PI_API_KEY` (`SESSION_SECRET` est générée automatiquement). Build : `npm install --include=dev && npm run build`, démarrage : `npm start`.
+Netlify reste possible (`netlify.toml` redirige /api/* vers les fonctions).

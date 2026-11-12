@@ -4,3 +4,12 @@
   functions = "netlify/functions"
 [functions]
   node_bundler = "esbuild"
+# Le frontend appelle /api/* : sur Netlify, redirection vers les fonctions.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,4 +1,4 @@
-const BASE = '/.netlify/functions';
+const BASE = '/api';
 let token: string | null = sessionStorage.getItem('dpg_token');
 export const setSession = (t: string | null, u?: string, role?: string) => {
   token = t;
