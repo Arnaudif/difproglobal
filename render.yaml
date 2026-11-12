@@ -10,8 +10,6 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22
-      - key: VITE_PI_SANDBOX
-        value: "true"
       - key: SUPABASE_URL
         value: https://kiitjvxbtmnzwjvgrxll.supabase.co
       - key: SUPABASE_SERVICE_ROLE_KEY

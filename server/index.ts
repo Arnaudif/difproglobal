@@ -16,8 +16,16 @@ app.disable('x-powered-by');
 app.set('trust proxy', 1); // Render place un proxy devant l'application
 
 // En-têtes de sécurité. Pas de X-Frame-Options : Pi Browser peut afficher l'app dans un cadre.
+// CSP explicite (aucun joker) : le SDK Pi appelle socialchain.app en interne ; l'échange du jeton se fait côté serveur.
+const csp = [
+  "script-src 'self' https://sdk.minepi.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "connect-src 'self' https://socialchain.app",
+  "frame-ancestors 'self' https://*.pinet.com https://*.minepi.com",
+  "object-src 'none'", "base-uri 'self'",
+].join('; ');
 app.use((_req, res, next) => {
-  res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' });
+  res.set({ 'Content-Security-Policy': csp, 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' });
   next();
 });
 

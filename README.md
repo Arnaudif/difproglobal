@@ -10,7 +10,7 @@ Ce code n'a PAS été exécuté ni compilé ici (pas de réseau) : lancez `npm i
 ## Mise en place
 1. Supabase : créer un projet, exécuter `supabase/schema.sql` (SQL Editor). Copier l'URL et la clé « service_role ».
 2. GitHub : envoyer ce dossier (le fichier `.env` n'est jamais envoyé).
-3. Netlify : importer le dépôt (build `npm run build`, dossier `dist`). Variables d'environnement : `PI_API_KEY`, `SESSION_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `VITE_PI_SANDBOX=true`.
+3. Netlify : importer le dépôt (build `npm run build`, dossier `dist`). Variables d'environnement : `SESSION_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
 4. Pi Developer Portal (dans Pi Browser) : créer l'app Testnet, mettre l'URL Netlify, générer la clé API serveur (à coller dans Netlify uniquement).
 5. Tester dans Pi Browser : connexion, envoi d'une demande, vérification dans Supabase > Table editor > requests.
 
