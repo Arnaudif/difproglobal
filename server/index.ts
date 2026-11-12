@@ -21,7 +21,7 @@ const csp = [
   "script-src 'self' https://sdk.minepi.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "connect-src 'self' https://socialchain.app",
-  "frame-ancestors 'self' https://*.pinet.com https://*.minepi.com",
+  "frame-ancestors 'self' https://*.pinet.com https://*.minepi.com https://*.piappengine.com",
   "object-src 'none'", "base-uri 'self'",
 ].join('; ');
 app.use((_req, res, next) => {
