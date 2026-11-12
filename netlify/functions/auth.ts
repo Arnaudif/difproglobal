@@ -16,7 +16,8 @@ export const handler = async (e: any) => {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accessToken }), signal: AbortSignal.timeout(10000),
     });
-  } catch { return json(502, { error: 'Service de vérification Pi indisponible, réessayez.' }); }
+  } catch (err) { console.error('auth: App Studio injoignable', err instanceof Error ? err.message : 'erreur'); return json(502, { error: 'Service de vérification Pi indisponible, réessayez.' }); }
+  console.log('auth: App Studio a répondu', r.status);
   if (r.status === 401 || r.status === 403) return json(401, { error: 'Identité Pi non vérifiée' });
   if (!r.ok) return json(502, { error: 'Vérification Pi impossible, réessayez.' });
 
