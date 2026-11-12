@@ -24,9 +24,10 @@ export const handler = async (e: any) => {
     const { data: reqRow, error } = await sb.from('requests').update({ status: b.status })
       .eq('reference', b.reference).select('pi_uid,reference').single();
     if (error || !reqRow) return json(404, { error: 'Demande introuvable' });
-    await sb.from('notifications').insert({ pi_uid: reqRow.pi_uid, title: `Votre demande ${reqRow.reference} est ${LABELS[b.status]}` });
-    await sb.from('admin_logs').insert({ admin_uid: uid, action: `status:${b.status}`, target: reqRow.reference });
-    return json(200, { ok: true });
+    const n = await sb.from('notifications').insert({ pi_uid: reqRow.pi_uid, title: `Votre demande ${reqRow.reference} est ${LABELS[b.status]}` });
+    const l = await sb.from('admin_logs').insert({ admin_uid: uid, action: `status:${b.status}`, target: reqRow.reference });
+    if (n.error || l.error) console.error('admin: notification ou journal non enregistré', n.error?.code, l.error?.code);
+    return json(200, { ok: true, notified: !n.error });
   }
   return json(405, { error: 'Méthode non autorisée' });
 };

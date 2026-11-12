@@ -15,7 +15,7 @@ Ce code n'a PAS été exécuté ni compilé ici (pas de réseau) : lancez `npm i
 5. Tester dans Pi Browser : connexion, envoi d'une demande, vérification dans Supabase > Table editor > requests.
 
 ## Premier administrateur
-Connectez-vous une fois avec Pi, puis dans Supabase > SQL Editor : `update profiles set role = 'admin' where username = 'VOTRE_NOM_PI';`. Reconnectez-vous ensuite : « Espace administrateur » apparaît dans le Profil.
+Connectez-vous une fois avec Pi, puis dans Supabase > SQL Editor : `update profiles set role = 'admin' where lower(username) = lower('VOTRE_NOM_PI');`. Reconnectez-vous ensuite : « Espace administrateur » apparaît dans le Profil.
 
 ## Local
 `npm install` puis `npx netlify dev` (fichier `.env` copié depuis `.env.example`).

@@ -13,9 +13,29 @@ const routes: Record<string, (e: any) => Promise<{ statusCode: number; headers?:
 
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', 1); // Render place un proxy devant l'application
+
+// En-têtes de sécurité. Pas de X-Frame-Options : Pi Browser peut afficher l'app dans un cadre.
+app.use((_req, res, next) => {
+  res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' });
+  next();
+});
+
+// Limiteur simple en mémoire (par adresse IP) : suffit pour une seule instance.
+const hits = new Map<string, { n: number; reset: number }>();
+const limit = (key: string, max: number, windowMs: number) => (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const k = `${key}:${req.ip}`, now = Date.now(), h = hits.get(k);
+  if (!h || h.reset < now) { hits.set(k, { n: 1, reset: now + windowMs }); return next(); }
+  if (++h.n > max) { res.status(429).json({ error: 'Trop de requêtes, réessayez dans quelques minutes.' }); return; }
+  next();
+};
+setInterval(() => { const now = Date.now(); for (const [k, h] of hits) if (h.reset < now) hits.delete(k); }, 60000).unref();
 app.use(express.text({ type: '*/*', limit: '100kb' }));
 
 app.get('/api/health', (_req, res) => { res.json({ ok: true }); });
+
+app.use('/api/auth', limit('auth', 20, 10 * 60000));
+app.use('/api', limit('api', 120, 60000));
 
 app.all('/api/:name', async (req, res) => {
   const h = routes[req.params.name];
@@ -23,13 +43,15 @@ app.all('/api/:name', async (req, res) => {
   try {
     const r = await h({ httpMethod: req.method, headers: req.headers, body: typeof req.body === 'string' ? req.body : '' });
     res.status(r.statusCode).set(r.headers || {}).send(r.body);
-  } catch {
+  } catch (err) {
+    console.error('api', req.params.name, err instanceof Error ? err.message : 'erreur');
     res.status(500).json({ error: 'Erreur serveur' }); // aucun détail interne exposé
   }
 });
 
 const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../dist');
 app.use(express.static(dist));
+app.all('/api/*', (_req, res) => { res.status(404).json({ error: 'Route inconnue' }); });
 app.get('*', (_req, res) => { res.sendFile(path.join(dist, 'index.html')); });
 
 const port = Number(process.env.PORT) || 3000;

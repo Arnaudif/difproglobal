@@ -29,8 +29,8 @@ export function Contact({ go }: Nav) {
       <p>Pour une demande de service, le formulaire de devis est le moyen le plus rapide : vous suivez la réponse dans l’application.</p>
       <button className="gold wide" onClick={() => go({ name: 'quote' })}>Demander un devis</button>
       <div className="card info-rows">
-        <div><span className="muted">Téléphones</span><b><a href="tel:+237697462617">697 462 617</a> · <a href="tel:+237675101944">675 101 944</a></b></div>
-        <div><span className="muted">E-mail</span><b><a href="mailto:difproglobal@gmail.com">difproglobal@gmail.com</a></b></div>
+        <div><span className="muted">Téléphones</span><b>+237 697 462 617 · +237 675 101 944</b></div>
+        <div><span className="muted">E-mail</span><b>difproglobal@gmail.com</b></div>
         <div><span className="muted">Siège</span><b>Cameroun</b></div>
         <div><span className="muted">Promoteur</span><b>Arneau Diffo</b></div>
       </div>
@@ -68,7 +68,6 @@ export function Opportunities({ go }: Nav) {
         <h2>Aucune annonce publiée</h2>
         <p>Les opportunités vérifiées (partenariats, appels à prestataires, recherche de talents) apparaîtront ici.</p>
       </div>
-      <button className="gold wide" disabled>Proposer une opportunité · bientôt</button>
       <button className="outline wide" onClick={() => go({ name: 'quote' })}>Présenter mon projet par une demande</button>
     </Doc>
   );

@@ -23,4 +23,4 @@ create table if not exists admin_logs(
   action text not null, target text, created_at timestamptz not null default now());
 alter table admin_logs enable row level security;
 -- Premier administrateur : à faire UNE FOIS dans le SQL Editor, après votre première connexion Pi :
---   update profiles set role = 'admin' where username = 'VOTRE_NOM_PI';
+--   update profiles set role = 'admin' where lower(username) = lower('VOTRE_NOM_PI');

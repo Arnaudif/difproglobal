@@ -51,10 +51,6 @@ export function Profile({ go, user, role, onSession }: ProfileProps) {
         {item('doc', 'Conditions d’utilisation', () => go({ name: 'terms' }))}
         {item('shield', 'Confidentialité', () => go({ name: 'privacy' }))}
       </div>
-      <div className="card menu soon">
-        <div className="menu-item static"><Icon name="globe" size={20} /><span className="grow">Langue : Français</span><span className="tag plain">English bientôt</span></div>
-        <div className="menu-item static"><Icon name="check" size={20} /><span className="grow">Favoris et préférences</span><span className="tag plain">Bientôt</span></div>
-      </div>
       {user && <button className="outline wide" onClick={out}><Icon name="logout" size={18} /> Déconnexion</button>}
     </>
   );
