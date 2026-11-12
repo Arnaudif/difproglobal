@@ -4,7 +4,7 @@ Frontend React + TypeScript + Vite · Backend Netlify Functions · Base Supabase
 ## État réel
 Fonctionne (à tester) : navigation 5 onglets, catalogue de DÉMONSTRATION, connexion Pi vérifiée serveur (/me), session signée, création et liste des demandes (enregistrées en base, référence renvoyée seulement après insertion).
 Ajouté : alertes réelles (notifications créées quand un administrateur change le statut d'une demande) et espace administrateur (liste des demandes, changement de statut, journal). Le rôle est contrôlé côté serveur à chaque appel.
-Pas encore fait : gestion des services/catégories en base, espace prestataire, favoris, paiements Pi, bilingue, images, tests automatisés.
+Pas encore fait : gestion des services/catégories en base, espace prestataire, favoris, bilingue, images, tests automatisés.
 Ce code n'a PAS été exécuté ni compilé ici (pas de réseau) : lancez `npm install` puis `npm run build` et signalez-moi toute erreur.
 
 ## Mise en place

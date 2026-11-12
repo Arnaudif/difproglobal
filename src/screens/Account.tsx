@@ -63,6 +63,13 @@ export function Admin() {
   const [err, setErr] = useState('');
   const [filter, setFilter] = useState('');
   useEffect(() => { api.adminList().then(d => setRows(d.requests)).catch(e => setErr(api.errMsg(e))); }, []);
+  const setAmount = async (reference: string, v: string) => {
+    setErr('');
+    const amount = Number(v.replace(',', '.'));
+    if (!Number.isFinite(amount) || amount <= 0) { setErr('Entrez un montant en Pi supérieur à 0.'); return; }
+    try { await api.adminSetAmount(reference, amount); setRows((rows || []).map(r => (r.reference === reference ? { ...r, amount_pi: amount } : r))); }
+    catch (e) { setErr(api.errMsg(e)); }
+  };
   const change = async (reference: string, status: string) => {
     setErr('');
     try { await api.adminSetStatus(reference, status); setRows((rows || []).map(r => (r.reference === reference ? { ...r, status } : r))); }
@@ -86,6 +93,14 @@ export function Admin() {
             <span className="muted">{r.reference} · {r.profiles?.username || 'inconnu'} · {new Date(r.created_at).toLocaleDateString('fr-FR')}</span>
             <p>{r.description}</p>
             {(r.location || r.budget) && <span className="muted">{[r.location, r.budget].filter(Boolean).join(' · ')}</span>}
+            <form className="row" onSubmit={e => { e.preventDefault(); const v = new FormData(e.currentTarget).get('amount'); setAmount(r.reference, String(v || '')); }}>
+              <label style={{ flex: 1 }}>Montant à payer (π)
+                <input className="field" name="amount" inputMode="decimal" defaultValue={r.amount_pi ?? ''} disabled={r.payment_status === 'paid'} placeholder="Ex. 1.5" />
+              </label>
+              <button className="outline sm" disabled={r.payment_status === 'paid'}>Fixer</button>
+            </form>
+            {r.payment_status === 'paid' && <span className="st done">Payé · {Number(r.amount_pi)} π</span>}
+            {r.payment_status === 'pending' && <span className="st quote_sent">Paiement en cours</span>}
             <label>Statut
               <select className="field" value={r.status} onChange={e => change(r.reference, e.target.value)}>
                 {STATUSES.map(s => <option key={s} value={s}>{statusLabel[s]}</option>)}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import * as api from '../api';
+import { payRequest } from '../pi';
 import { services, statusLabel } from '../data';
 import { Empty, ErrorBox, Loading } from '../ui';
 import type { Nav } from '../types';
@@ -14,20 +15,34 @@ const LoginNeeded = ({ go, text }: { go: Nav['go']; text: string }) => (
 export function Requests({ user, go }: Props) {
   const [rows, setRows] = useState<any[] | null>(null);
   const [err, setErr] = useState('');
-  useEffect(() => {
-    if (!user) return;
-    api.listRequests().then(d => setRows(d.requests)).catch(e => setErr(api.errMsg(e)));
-  }, [user]);
+  const [paying, setPaying] = useState('');
+  const [note, setNote] = useState('');
+  const load = () => api.listRequests().then(d => setRows(d.requests)).catch(e => setErr(api.errMsg(e)));
+  useEffect(() => { if (user) load(); }, [user]);
+  const pay = async (r: any) => {
+    setPaying(r.reference); setErr(''); setNote('');
+    try { await payRequest(r.reference, Number(r.amount_pi)); setNote('Paiement reçu pour ' + r.reference + '. Merci !'); await load(); }
+    catch (e) { setErr(api.errMsg(e)); await load(); } finally { setPaying(''); }
+  };
   if (!user) return <LoginNeeded go={go} text="Connectez-vous avec Pi pour suivre vos demandes." />;
-  if (err) return <ErrorBox text={err} />;
+  if (!rows && err) return <ErrorBox text={err} />;
   if (!rows) return <Loading />;
   if (!rows.length) return <Empty title="Aucune demande" text="Vos demandes de devis apparaîtront ici avec leur statut." action={<button className="gold" onClick={() => go({ name: 'quote' })}>Demander un devis</button>} />;
   return (
     <div className="stack">
+      {note && <div className="card note" role="status">{note}</div>}
+      {err && <ErrorBox text={err} />}
       {rows.map(r => (
         <div key={r.reference} className="card req">
           <div className="req-top"><b>{r.service}</b><span className={'st ' + r.status}>{statusLabel[r.status] || r.status}</span></div>
           <span className="muted">Réf. {r.reference} · {new Date(r.created_at).toLocaleDateString('fr-FR')}</span>
+          {r.payment_status === 'paid' && <span className="st done">Payé · {Number(r.amount_pi)} π</span>}
+          {r.payment_status !== 'paid' && r.amount_pi && r.status !== 'refused' && (
+            <>
+              <span className="muted">Montant du devis : <b>{Number(r.amount_pi)} π</b>. Vous confirmez le paiement dans Pi Browser.</span>
+              <button className="gold" disabled={paying === r.reference} onClick={() => pay(r)}>{paying === r.reference ? 'Paiement en cours…' : `Payer ${Number(r.amount_pi)} π`}</button>
+            </>
+          )}
         </div>
       ))}
     </div>

@@ -40,7 +40,7 @@ export function Contact({ go }: Nav) {
 
 const faq: { q: string; a: string }[] = [
   { q: 'Comment demander un devis ?', a: 'Connectez-vous avec Pi, ouvrez un service puis appuyez sur « Demander ce service », ou utilisez « Demander un devis » depuis l’accueil. Un numéro de référence s’affiche une fois la demande enregistrée.' },
-  { q: 'Dois-je payer dans l’application ?', a: 'Non. Pour le moment, aucun paiement en ligne n’est proposé : les services sont sur devis.' },
+  { q: 'Dois-je payer dans l’application ?', a: 'Les services sont sur devis. Après votre demande, l’équipe fixe un montant en Pi ; un bouton « Payer » apparaît alors dans Mes demandes et vous confirmez le paiement dans Pi Browser. Rien n’est prélevé sans votre confirmation.' },
   { q: 'Pourquoi me connecter avec Pi ?', a: 'La connexion Pi permet de vérifier votre identité et de rattacher vos demandes à votre compte. Nous ne demandons jamais la phrase secrète de votre portefeuille.' },
   { q: 'Comment suivre ma demande ?', a: 'Dans « Mes demandes », chaque dossier affiche son statut : reçue, en cours, devis envoyé, acceptée, terminée ou refusée. Une alerte vous prévient à chaque changement.' },
   { q: 'Les services affichés sont-ils définitifs ?', a: 'Non. Les services et tarifs sont en cours de confirmation : les fiches actuelles sont des exemples marqués « Démo ».' },
@@ -80,7 +80,7 @@ export function Legal({ kind }: { kind: 'terms' | 'privacy' }) {
       <h2>Objet</h2><p>DIFPROGLOBAL présente des services et permet d’envoyer des demandes de devis et de suivre leur traitement.</p>
       <h2>Compte</h2><p>La connexion s’effectue uniquement avec Pi. Vous êtes responsable de l’usage de votre compte. Personne ne peut se déclarer administrateur ou représentant de DIFPROGLOBAL sans autorisation de l’entreprise.</p>
       <h2>Services et tarifs</h2><p>Les offres affichées peuvent évoluer et certaines sont des exemples de démonstration. Un devis n’engage les parties qu’après acceptation.</p>
-      <h2>Paiements</h2><p>Aucun paiement en ligne n’est proposé actuellement.</p>
+      <h2>Paiements</h2><p>Les paiements se font en Pi uniquement, pour un montant fixé dans le devis, et après votre confirmation dans Pi Browser. Un paiement validé est enregistré avec la référence de la demande.</p>
       <h2>Contenus</h2><p>Vous vous engagez à fournir des informations exactes et à ne pas utiliser l’application à des fins illicites.</p>
       <h2>Contact</h2><p>difproglobal@gmail.com</p>
     </Doc>
@@ -88,7 +88,7 @@ export function Legal({ kind }: { kind: 'terms' | 'privacy' }) {
     <Doc>
       <p className="note">Version provisoire, à faire valider avant la mise en production.</p>
       <h2>Données enregistrées</h2><p>Votre identifiant et nom d’utilisateur Pi, ainsi que le contenu de vos demandes (service, description, lieu, budget indicatif) et vos notifications.</p>
-      <h2>Données non demandées</h2><p>Nous ne demandons ni la phrase secrète, ni les clés de votre portefeuille Pi.</p>
+      <h2>Données non demandées</h2><p>Nous ne demandons ni la phrase secrète, ni les clés de votre portefeuille Pi. Pour un paiement, nous enregistrons seulement son identifiant, son montant et l’identifiant de transaction.</p>
       <h2>Usage</h2><p>Ces données servent uniquement à traiter vos demandes et à vous informer de leur avancement.</p>
       <h2>Accès et protection</h2><p>Les données sont stockées dans une base protégée. Chaque utilisateur ne peut consulter que ses propres demandes ; seuls les administrateurs autorisés accèdent à l’ensemble.</p>
       <h2>Vos droits</h2><p>Pour consulter, corriger ou supprimer vos données, écrivez à difproglobal@gmail.com.</p>

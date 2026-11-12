@@ -13,13 +13,24 @@ export const handler = async (e: any) => {
 
   if (e.httpMethod === 'GET') {
     const { data, error } = await sb.from('requests')
-      .select('reference,service,description,location,budget,status,created_at,profiles(username)')
+      .select('reference,service,description,location,budget,status,created_at,amount_pi,payment_status,profiles(username)')
       .order('created_at', { ascending: false }).limit(100);
     return error ? json(500, { error: 'Lecture impossible' }) : json(200, { requests: data });
   }
   if (e.httpMethod === 'POST') {
     let b: any;
     try { b = JSON.parse(e.body || '{}'); } catch { return json(400, { error: 'Données invalides' }); }
+    if (b.amount !== undefined) {
+      // Montant en Pi fixé par l'administrateur pour une demande (jamais par le client).
+      const amount = Number(b.amount);
+      if (typeof b.reference !== 'string' || !Number.isFinite(amount) || amount <= 0 || amount > 100000) return json(400, { error: 'Montant invalide' });
+      const { data: row, error: e1 } = await sb.from('requests').update({ amount_pi: amount.toFixed(7) })
+        .eq('reference', b.reference).neq('payment_status', 'paid').select('pi_uid,reference').single();
+      if (e1 || !row) return json(404, { error: 'Demande introuvable ou déjà payée' });
+      await sb.from('notifications').insert({ pi_uid: row.pi_uid, title: `Montant à payer pour la demande ${row.reference} : ${amount} π` });
+      await sb.from('admin_logs').insert({ admin_uid: uid, action: `amount:${amount}`, target: row.reference });
+      return json(200, { ok: true });
+    }
     if (!STATUSES.includes(b.status) || typeof b.reference !== 'string') return json(400, { error: 'Statut ou référence invalide' });
     const { data: reqRow, error } = await sb.from('requests').update({ status: b.status })
       .eq('reference', b.reference).select('pi_uid,reference').single();

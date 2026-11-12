@@ -5,10 +5,11 @@ import { handler as auth } from '../netlify/functions/auth';
 import { handler as requests } from '../netlify/functions/requests';
 import { handler as notifications } from '../netlify/functions/notifications';
 import { handler as admin } from '../netlify/functions/admin';
+import { handler as payments } from '../netlify/functions/payments';
 
 // Même logique métier que les fonctions Netlify, exposée sous /api/* pour Render, Railway, etc.
 const routes: Record<string, (e: any) => Promise<{ statusCode: number; headers?: Record<string, string>; body: string }>> = {
-  auth, requests, notifications, admin,
+  auth, requests, notifications, admin, payments,
 };
 
 const app = express();

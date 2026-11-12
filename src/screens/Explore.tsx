@@ -54,7 +54,7 @@ export function ServiceDetail({ go, id }: Nav & { id: string }) {
       </div>
       <div className="card info-rows">
         <div><span className="muted">Zone desservie</span><b>{s.zone}</b></div>
-        <div><span className="muted">Paiement</span><b>Sur devis, aucun paiement en ligne</b></div>
+        <div><span className="muted">Paiement</span><b>Sur devis, paiement en Pi après accord</b></div>
         <div><span className="muted">Contact</span><b>Échanges dans l’application</b></div>
         <div><span className="muted">Statut</span><b>Publié (démonstration)</b></div>
       </div>

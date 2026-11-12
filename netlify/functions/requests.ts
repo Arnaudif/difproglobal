@@ -6,7 +6,7 @@ export const handler = async (e: any) => {
   if (!uid) return json(401, { error: 'Connexion requise' });
   const sb = db();
   if (e.httpMethod === 'GET') {
-    const { data, error } = await sb.from('requests').select('reference,service,status,created_at')
+    const { data, error } = await sb.from('requests').select('reference,service,status,created_at,amount_pi,payment_status')
       .eq('pi_uid', uid).order('created_at', { ascending: false });
     return error ? json(500, { error: 'Lecture impossible' }) : json(200, { requests: data });
   }

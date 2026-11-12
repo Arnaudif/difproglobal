@@ -28,4 +28,6 @@ export const createRequest = (b: object) => call('/requests', { method: 'POST', 
 export const listNotifications = () => call('/notifications');
 export const markRead = (id: string) => call('/notifications', { method: 'POST', body: JSON.stringify({ id }) });
 export const adminList = () => call('/admin');
+export const adminSetAmount = (reference: string, amount: number) => call('/admin', { method: 'POST', body: JSON.stringify({ reference, amount }) });
+export const payment = (action: 'approve' | 'complete' | 'cancel' | 'incomplete', paymentId: string) => call('/payments', { method: 'POST', body: JSON.stringify({ action, paymentId }) });
 export const adminSetStatus = (reference: string, status: string) => call('/admin', { method: 'POST', body: JSON.stringify({ reference, status }) });
