@@ -11,7 +11,11 @@ async function pi(path: string, method: 'GET' | 'POST' = 'GET', body?: object) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const data: any = await r.json().catch(() => null);
-  if (!r.ok) { console.error('payments: API Pi', method, path.replace(/^\/[^/]+/, '/{id}'), r.status); throw new Error('pi_' + r.status); }
+  if (!r.ok) {
+    // Message d'erreur de Pi (sans secret) pour le diagnostic.
+    console.error('payments: API Pi', method, path.replace(/^\/[^/]+/, '/{id}'), r.status, String(data?.error || ''), String(data?.error_message || data?.message || '').slice(0, 200));
+    throw new Error('pi_' + r.status);
+  }
   return data;
 }
 
