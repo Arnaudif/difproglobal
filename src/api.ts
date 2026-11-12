@@ -1,10 +1,21 @@
 const BASE = '/api';
-let token: string | null = sessionStorage.getItem('dpg_token');
+const mem: Record<string, string> = {};
+export const storage = {
+  get(k: string): string | null { try { return sessionStorage.getItem(k); } catch { return mem[k] ?? null; } },
+  set(k: string, v: string) { try { sessionStorage.setItem(k, v); } catch { mem[k] = v; } },
+  del(k: string) { try { sessionStorage.removeItem(k); } catch { delete mem[k]; } },
+};
+let token: string | null = storage.get('dpg_token');
+export const storedUser = () => storage.get('dpg_user');
+export const storedRole = () => storage.get('dpg_role') || 'user';
+export const errMsg = (x: unknown) => (x instanceof Error ? x.message : 'Une erreur est survenue');
+
 export const setSession = (t: string | null, u?: string, role?: string) => {
   token = t;
-  if (t) { sessionStorage.setItem('dpg_token', t); sessionStorage.setItem('dpg_user', u || ''); sessionStorage.setItem('dpg_role', role || 'user'); }
-  else { sessionStorage.removeItem('dpg_token'); sessionStorage.removeItem('dpg_user'); sessionStorage.removeItem('dpg_role'); }
+  if (t) { storage.set('dpg_token', t); storage.set('dpg_user', u || ''); storage.set('dpg_role', role || 'user'); }
+  else { storage.del('dpg_token'); storage.del('dpg_user'); storage.del('dpg_role'); }
 };
+
 async function call(path: string, init: RequestInit = {}) {
   const r = await fetch(BASE + path, { ...init, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
   const d = await r.json().catch(() => ({}));
