@@ -23,6 +23,8 @@ async function call(path: string, init: RequestInit = {}) {
   return d;
 }
 export const login = (accessToken: string) => call('/auth', { method: 'POST', body: JSON.stringify({ accessToken }) });
+export const catalog = () => call('/catalog');
+export const order = (serviceId: string) => call('/requests', { method: 'POST', body: JSON.stringify({ serviceId }) });
 export const listRequests = () => call('/requests');
 export const createRequest = (b: object) => call('/requests', { method: 'POST', body: JSON.stringify(b) });
 export const listNotifications = () => call('/notifications');

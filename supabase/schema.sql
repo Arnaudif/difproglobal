@@ -35,3 +35,10 @@ create table if not exists admin_logs(
 alter table admin_logs enable row level security;
 -- Premier administrateur : à faire UNE FOIS dans le SQL Editor, après votre première connexion Pi :
 --   update profiles set role = 'admin' where lower(username) = lower('VOTRE_NOM_PI');
+
+-- Prix des services en π (migration « prix_services_test ») : valeurs de TEST, à remplacer par les tarifs réels.
+create table if not exists service_prices(
+  service_id text primary key, service_name text not null,
+  price_pi numeric(20,7) not null check (price_pi > 0), is_test boolean not null default true,
+  updated_at timestamptz not null default now());
+alter table service_prices enable row level security;
