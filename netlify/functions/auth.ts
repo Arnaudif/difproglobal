@@ -11,5 +11,6 @@ export const handler = async (e: any) => {
   const me = await r.json();
   const { error } = await db().from('profiles').upsert({ pi_uid: me.uid, username: me.username }, { onConflict: 'pi_uid' });
   if (error) return json(500, { error: 'Profil non enregistré' });
-  return json(200, { token: sign(me.uid), username: me.username });
+  const { data: prof } = await db().from('profiles').select('role').eq('pi_uid', me.uid).single();
+  return json(200, { token: sign(me.uid), username: me.username, role: prof?.role || 'user' });
 };

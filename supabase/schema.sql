@@ -16,3 +16,11 @@ alter table profiles enable row level security;
 alter table requests enable row level security;
 alter table notifications enable row level security;
 -- Aucune politique : seul le backend (clé service) lit et écrit. Le navigateur n'a aucun accès direct.
+
+-- Journal des actions d'administration
+create table if not exists admin_logs(
+  id uuid primary key default gen_random_uuid(), admin_uid text not null,
+  action text not null, target text, created_at timestamptz not null default now());
+alter table admin_logs enable row level security;
+-- Premier administrateur : à faire UNE FOIS dans le SQL Editor, après votre première connexion Pi :
+--   update profiles set role = 'admin' where username = 'VOTRE_NOM_PI';

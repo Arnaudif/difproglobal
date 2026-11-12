@@ -17,18 +17,20 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('home');
   const [quote, setQuote] = useState<string | null>(null);
   const [user, setUser] = useState<string | null>(sessionStorage.getItem('dpg_user') || null);
-  const go = (t: Tab) => { setQuote(null); setTab(t); };
+  const [role, setRole] = useState<string>(sessionStorage.getItem('dpg_role') || 'user');
+  const [admin, setAdmin] = useState(false);
+  const go = (t: Tab) => { setQuote(null); setAdmin(false); setTab(t); };
 
   return (
     <div className="app">
       <header className="top"><span className="logo">D</span><b>DIFPROGLOBAL</b></header>
       <main>
-        {quote !== null ? <Quote service={quote} user={user} onLogin={() => go('profile')} onDone={() => go('requests')} />
+        {admin ? <Admin onBack={() => setAdmin(false)} /> : quote !== null ? <Quote service={quote} user={user} onLogin={() => go('profile')} onDone={() => go('requests')} />
           : tab === 'home' ? <Home onExplore={() => go('explore')} onQuote={() => setQuote('')} />
           : tab === 'explore' ? <Explore onQuote={setQuote} />
           : tab === 'requests' ? <Requests user={user} onLogin={() => go('profile')} />
-          : tab === 'alerts' ? <Empty title="Aucune alerte" text="Vos réponses et mises à jour apparaîtront ici." />
-          : <Profile user={user} setUser={setUser} />}
+          : tab === 'alerts' ? <Alerts user={user} onLogin={() => go('profile')} />
+          : <Profile user={user} setUser={setUser} role={role} setRole={setRole} onAdmin={() => setAdmin(true)} />}
       </main>
       <nav className="bar" aria-label="Navigation principale">
         {tabs.map(t => (
@@ -105,20 +107,66 @@ function Quote({ service, user, onLogin, onDone }: { service: string; user: stri
   );
 }
 
-function Profile({ user, setUser }: { user: string | null; setUser: (u: string | null) => void }) {
+function Alerts({ user, onLogin }: { user: string | null; onLogin: () => void }) {
+  const [rows, setRows] = useState<any[] | null>(null);
+  const [err, setErr] = useState('');
+  useEffect(() => { if (user) api.listNotifications().then(d => setRows(d.notifications)).catch(e => setErr(e.message)); }, [user]);
+  if (!user) return <div className="card empty"><h2>Connexion requise</h2><p>Connectez-vous avec Pi pour voir vos alertes.</p><button className="gold" onClick={onLogin}>Aller au profil</button></div>;
+  if (err) return <div className="card err" role="alert">{err}</div>;
+  if (!rows) return <p className="muted">Chargement…</p>;
+  if (!rows.length) return <Empty title="Aucune alerte" text="Les mises à jour de vos demandes apparaîtront ici." />;
+  const read = async (n: any) => {
+    if (n.read) return;
+    try { await api.markRead(n.id); setRows(rows.map(r => r.id === n.id ? { ...r, read: true } : r)); } catch (e: any) { setErr(e.message); }
+  };
+  return <>{rows.map(n => (
+    <button key={n.id} className="card svc alert" onClick={() => read(n)} style={{ opacity: n.read ? 0.7 : 1, textAlign: 'left' }}>
+      <div><b>{n.title}</b><div className="muted">{new Date(n.created_at).toLocaleString('fr-FR')} · {n.read ? 'Lue' : 'Non lue'}</div></div>
+    </button>))}</>;
+}
+
+function Admin({ onBack }: { onBack: () => void }) {
+  const [rows, setRows] = useState<any[] | null>(null);
+  const [err, setErr] = useState('');
+  useEffect(() => { api.adminList().then(d => setRows(d.requests)).catch(e => setErr(e.message)); }, []);
+  const change = async (reference: string, status: string) => {
+    setErr('');
+    try { await api.adminSetStatus(reference, status); setRows((rows || []).map(r => r.reference === reference ? { ...r, status } : r)); }
+    catch (e: any) { setErr(e.message); }
+  };
+  return (<>
+    <button className="ghost dark" onClick={onBack}>Retour</button>
+    <h2>Administration : demandes</h2>
+    {err && <div className="card err" role="alert">{err}</div>}
+    {!rows && !err && <p className="muted">Chargement…</p>}
+    {rows && !rows.length && <Empty title="Aucune demande" text="Les demandes des clients apparaîtront ici." />}
+    {rows?.map(r => (
+      <div key={r.reference} className="card form">
+        <b>{r.service}</b>
+        <div className="muted">{r.reference} · {r.profiles?.username || 'inconnu'} · {new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+        <p>{r.description}</p>
+        {(r.location || r.budget) && <div className="muted">{[r.location, r.budget].filter(Boolean).join(' · ')}</div>}
+        <label>Statut<select className="field" value={r.status} onChange={e => change(r.reference, e.target.value)}>
+          {Object.entries(statusLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+      </div>))}
+  </>);
+}
+
+function Profile({ user, setUser, role, setRole, onAdmin }: { user: string | null; setUser: (u: string | null) => void; role: string; setRole: (r: string) => void; onAdmin: () => void }) {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const connect = async () => {
     setBusy(true); setErr('');
-    try { const d = await api.login(await piLogin()); api.setSession(d.token, d.username); setUser(d.username); }
+    try { const d = await api.login(await piLogin()); api.setSession(d.token, d.username, d.role); setUser(d.username); setRole(d.role || 'user'); }
     catch (e: any) { setErr(e.message || 'Connexion impossible'); } finally { setBusy(false); }
   };
-  const out = () => { api.setSession(null); setUser(null); };
+  const out = () => { api.setSession(null); setUser(null); setRole('user'); };
   return (<>
     <div className="card"><b>{user ? `Pionnier : ${user}` : 'Non connecté'}</b>
       <p className="muted">{user ? 'Identité vérifiée par le serveur via Pi.' : 'La connexion se fait uniquement avec Pi. Nous ne demandons jamais votre phrase secrète.'}</p></div>
     {err && <div className="card err" role="alert">{err}</div>}
     {user ? <button className="ghost dark" onClick={out}>Déconnexion</button> : <button className="gold" onClick={connect} disabled={busy}>{busy ? 'Connexion…' : 'Se connecter avec Pi'}</button>}
+    {user && role === 'admin' && <button className="gold" onClick={onAdmin}>Espace administrateur</button>}
     <p className="muted">Favoris, langue, préférences : à venir.</p>
   </>);
 }
